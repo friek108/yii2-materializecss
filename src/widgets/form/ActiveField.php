@@ -335,4 +335,80 @@ class ActiveField extends \yii\widgets\ActiveField
         Html::addCssClass($options, ['textarea' => 'materialize-textarea']);
         return parent::textarea($options);
     }
+
+    /**
+     * Renders a checkbox
+     * @param  array   $options
+     * @param  boolean $enclosedByLabel
+     * @return ActiveField
+     */
+    public function checkbox($options = [],$enclosedByLabel = false)
+    {   
+        if (isset($options['label']) && !isset($this->parts['{label}'])) {
+            $this->parts['{label}'] = $options['label'];
+            if (!empty($options['labelOptions'])) {
+                $this->labelOptions = $options['labelOptions'];
+            }
+        }
+        unset($options['labelOptions']);
+        $options['label'] = null;
+        $this->parts['{input}'] = Html::activeCheckbox($this->model, $this->attribute, $options);
+        
+        $this->adjustLabelFor($options);
+
+        return $this;
+    }
+
+    /*public static function activeCheckbox($model, $attribute, $options = [])
+    {
+        return static::activeBooleanInput('checkbox', $model, $attribute, $options);
+    }
+
+    protected static function activeBooleanInput($type, $model, $attribute, $options = [])
+    {
+        $name = isset($options['name']) ? $options['name'] : static::getInputName($model, $attribute);
+        $value = static::getAttributeValue($model, $attribute);
+        if (!array_key_exists('value', $options)) {
+            $options['value'] = '1';
+        }
+        if (!array_key_exists('uncheck', $options)) {
+            $options['uncheck'] = '0';
+        }
+        if (!array_key_exists('label', $options)) {
+            $options['label'] = static::encode($model->getAttributeLabel(static::getAttributeName($attribute)));
+        }
+        $checked = "$value" === "{$options['value']}";
+        if (!array_key_exists('id', $options)) {
+            $options['id'] = static::getInputId($model, $attribute);
+        }
+        return static::$type($name, $checked, $options);
+    }
+
+    public static function checkbox($name, $checked = false, $options = [])
+    {
+        return static::booleanInput('checkbox', $name, $checked, $options);
+    }
+
+
+    protected static function booleanInput($type, $name, $checked = false, $options = [])
+    {
+        $options['checked'] = (bool) $checked;
+        $value = array_key_exists('value', $options) ? $options['value'] : '1';
+        if (isset($options['uncheck'])) {
+            // add a hidden field so that if the checkbox is not selected, it still submits a value
+            $hidden = static::hiddenInput($name, $options['uncheck']);
+            unset($options['uncheck']);
+        } else {
+            $hidden = '';
+        }
+        if (isset($options['label'])) {
+            $label = $options['label'];
+            $labelOptions = isset($options['labelOptions']) ? $options['labelOptions'] : [];
+            unset($options['label'], $options['labelOptions']);
+            $content = static::label(static::input($type, $name, $value, $options) . ' ' . $label, null, $labelOptions);
+            return $hidden . $content;
+        } else {
+            return $hidden . static::input($type, $name, $value, $options);
+        }
+    }*/
 }
