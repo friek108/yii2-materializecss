@@ -255,6 +255,7 @@ class ActiveField extends \yii\widgets\ActiveField
      */
     public function numberInput($options = [])
     {
+        $options = array_merge($this->inputOptions, $options);
         Html::addCssClass($options, ['input' => 'number']);
         return parent::input('number', $options);
     }
@@ -343,72 +344,46 @@ class ActiveField extends \yii\widgets\ActiveField
      * @return ActiveField
      */
     public function checkbox($options = [],$enclosedByLabel = false)
-    {   
-        if (isset($options['label']) && !isset($this->parts['{label}'])) {
-            $this->parts['{label}'] = $options['label'];
-            if (!empty($options['labelOptions'])) {
-                $this->labelOptions = $options['labelOptions'];
-            }
-        }
-        unset($options['labelOptions']);
-        $options['label'] = null;
-        $this->parts['{input}'] = Html::activeCheckbox($this->model, $this->attribute, $options);
-        
-        $this->adjustLabelFor($options);
-
-        return $this;
+    {           
+        return parent::checkbox($options,false);        
     }
 
-    /*public static function activeCheckbox($model, $attribute, $options = [])
+    /**
+     * Renders and inits a dropdownList
+     * @param  array $items   
+     * @param  array  $options 
+     * @return html
+     */
+    public function dropDownList($items, $options = [])
     {
-        return static::activeBooleanInput('checkbox', $model, $attribute, $options);
+        if (!array_key_exists('id', $options)) 
+        {
+            $options['id'] = Html::getInputId($this->model, $this->attribute);
+        }
+        $this->form->getView()->registerJs("$('select#{$options['id']}').material_select();");
+
+        //$this->template = "{icon}\n<div class='select-outer-wrapper'>{input}\n{hint}\n{error}</div>\n{label}";
+
+        return parent::dropDownList($items,$options);
     }
 
-    protected static function activeBooleanInput($type, $model, $attribute, $options = [])
+    /**
+     * Renders and inits an autocomplete
+     * @param  array $data keys reflects the text and values reflects an image placeholder
+     * @param  array  $options 
+     * @return html
+     */
+    public function autoComplete($data,$options = [])
     {
-        $name = isset($options['name']) ? $options['name'] : static::getInputName($model, $attribute);
-        $value = static::getAttributeValue($model, $attribute);
-        if (!array_key_exists('value', $options)) {
-            $options['value'] = '1';
+        if (!array_key_exists('id', $options)) 
+        {
+            $options['id'] = Html::getInputId($this->model, $this->attribute);
         }
-        if (!array_key_exists('uncheck', $options)) {
-            $options['uncheck'] = '0';
-        }
-        if (!array_key_exists('label', $options)) {
-            $options['label'] = static::encode($model->getAttributeLabel(static::getAttributeName($attribute)));
-        }
-        $checked = "$value" === "{$options['value']}";
-        if (!array_key_exists('id', $options)) {
-            $options['id'] = static::getInputId($model, $attribute);
-        }
-        return static::$type($name, $checked, $options);
+        $this->form->getView()->registerJs("$('#{$options['id']}').autocomplete({data: ".json_encode($data)."});");
+
+        Html::addCssClass($options, ['input' => 'autocomplete']);
+        return parent::input('text', $options);
     }
 
-    public static function checkbox($name, $checked = false, $options = [])
-    {
-        return static::booleanInput('checkbox', $name, $checked, $options);
-    }
-
-
-    protected static function booleanInput($type, $name, $checked = false, $options = [])
-    {
-        $options['checked'] = (bool) $checked;
-        $value = array_key_exists('value', $options) ? $options['value'] : '1';
-        if (isset($options['uncheck'])) {
-            // add a hidden field so that if the checkbox is not selected, it still submits a value
-            $hidden = static::hiddenInput($name, $options['uncheck']);
-            unset($options['uncheck']);
-        } else {
-            $hidden = '';
-        }
-        if (isset($options['label'])) {
-            $label = $options['label'];
-            $labelOptions = isset($options['labelOptions']) ? $options['labelOptions'] : [];
-            unset($options['label'], $options['labelOptions']);
-            $content = static::label(static::input($type, $name, $value, $options) . ' ' . $label, null, $labelOptions);
-            return $hidden . $content;
-        } else {
-            return $hidden . static::input($type, $name, $value, $options);
-        }
-    }*/
+    
 }
