@@ -385,5 +385,22 @@ class ActiveField extends \yii\widgets\ActiveField
         return parent::input('text', $options);
     }
 
+    /**
+     * Builds a radio list 
+     */
+    public function radioList($items, $options = [])
+    {
+        $defaultOptions = [
+              'item' => function($index, $label, $name, $checked, $value) {
+                return Html::radio($name,$checked,['value'=>$value,'id'=>$name.$index]) . Html::label($label,$name.$index);
+                return $return;
+              },
+              'class'=>'input-list-wrapper'
+            ];
+        $options = array_merge($defaultOptions, $options);
+
+        return parent::radioList($items,$options);
+    }
+
     
 }
