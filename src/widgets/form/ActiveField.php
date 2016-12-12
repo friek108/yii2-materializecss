@@ -7,6 +7,7 @@
 
 namespace macgyer\yii2materializecss\widgets\form;
 
+use Yii;
 use macgyer\yii2materializecss\lib\Html;
 use macgyer\yii2materializecss\widgets\Icon;
 use yii\helpers\ArrayHelper;
@@ -258,7 +259,7 @@ class ActiveField extends \yii\widgets\ActiveField
         $options = array_merge($this->inputOptions, $options);
         Html::addCssClass($options, ['input' => 'number']);
         return parent::input('number', $options);
-    }
+    }   
 
     /**
      * Renders a range input.
@@ -289,6 +290,7 @@ class ActiveField extends \yii\widgets\ActiveField
      */
     public function telInput($options = [])
     {
+        $options = array_merge($this->inputOptions, $options);
         Html::addCssClass($options, ['input' => 'tel']);
         return parent::input('tel', $options);
     }
@@ -354,15 +356,33 @@ class ActiveField extends \yii\widgets\ActiveField
      * @param  array  $options 
      * @return html
      */
-    public function dropDownList($items, $options = [])
+    public function dropDownList($items, $options = [],$init = true)
     {
         if (!array_key_exists('id', $options)) 
         {
             $options['id'] = Html::getInputId($this->model, $this->attribute);
         }
-        $this->form->getView()->registerJs("$('select#{$options['id']}').material_select();");
+        if ($init) $this->form->getView()->registerJs("$('select#{$options['id']}').material_select();");
 
         //$this->template = "{icon}\n<div class='select-outer-wrapper'>{input}\n{hint}\n{error}</div>\n{label}";
+
+        return parent::dropDownList($items,$options);
+    }
+
+    /**
+     * Renders and inits a dropdownList that is disabled by default and not inited
+     * This is generally used on the project page
+     * @param  array $items   
+     * @param  array  $options 
+     * @return html
+     */
+    public function viewDropDownList($items, $options = [])
+    {
+        $options = array_merge(['disabled'=>true],$options);        
+        if (!array_key_exists('id', $options)) 
+        {
+            $options['id'] = Html::getInputId($this->model, $this->attribute);
+        }
 
         return parent::dropDownList($items,$options);
     }
@@ -400,6 +420,46 @@ class ActiveField extends \yii\widgets\ActiveField
         $options = array_merge($defaultOptions, $options);
 
         return parent::radioList($items,$options);
+    }
+
+    public function viewField($format = 'Text',$options = [])
+    {
+        $this->template = "{icon}\n{input}\n{label}\n{hint}";
+
+        $options = array_merge($this->inputOptions, $options);       
+
+        $attribute = $this->attribute;
+
+        $this->parts['{label}'] = '<label>'.$this->model->getAttributeLabel($attribute).'</label>';
+        
+        $value = $this->model->$attribute;
+        $format = 'as'.$format;
+        $this->parts['{input}'] = '<div class="output">'.Yii::$app->formatter->$format($value).'</div>';
+
+        return $this;
+    }
+
+    public function formattedDate($options = [])
+    {
+        $attribute = $this->attribute;        
+        $value = $this->model->$attribute;
+        
+        if (!empty($value)) $this->model->$attribute = Yii::$app->formatter->asDate($value);
+        Html::addCssClass($options, ['class' => 'datepicker']);
+        return parent::input('text', $options);
+    }
+
+    public function visualViewSpan($format = 'Text',$options = [])
+    {
+        $attribute = $this->attribute;        
+        
+        if (empty($this->model->$attribute)) $value = '';
+        else {
+                $format = 'as'.$format;
+                $value = Yii::$app->formatter->$format($this->model->$attribute);
+        }        
+        
+        return '<span id='.Html::getInputId($this->model,$this->attribute).'-view>'.$value.'</span> ';
     }
 
     
