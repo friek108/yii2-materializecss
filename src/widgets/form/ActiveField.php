@@ -441,7 +441,7 @@ class ActiveField extends \yii\widgets\ActiveField
 
     public function formattedDate($options = [])
     {
-        $attribute = $this->attribute;        
+        $attribute = preg_replace('/[[\s\S]+?]/', '', $this->attribute); // remove [ ] for tabular inputs
         $value = $this->model->$attribute;
         
         if (!empty($value)) $this->model->$attribute = Yii::$app->formatter->asDate($value);
