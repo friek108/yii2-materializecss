@@ -268,8 +268,8 @@ class ActiveField extends \yii\widgets\ActiveField
      */
     public function rangeInput($options = [])
     {
-        Html::addCssClass($options, ['input' => 'email']);
-        return parent::input('email', $options);
+        Html::addCssClass($options, ['input' => 'range']);
+        return parent::input('range', $options);
     }
 
     /**
@@ -369,14 +369,20 @@ class ActiveField extends \yii\widgets\ActiveField
         return parent::dropDownList($items,$options);
     }
 
+    public function defaultDropDownList($items,$options = [])
+    {
+        return parent::dropdownList($items,$options);
+    }
+
     /**
      * Renders and inits a dropdownList that is disabled by default and not inited
-     * This is generally used on the project page
+     * This is generally used on the property / record page
      * @param  array $items   
      * @param  array  $options 
+     * @param boolean $loadList whether or not to load the list, or just load the value
      * @return html
      */
-    public function viewDropDownList($items, $options = [])
+    public function viewDropDownList($items, $options = [],$loadList = true)
     {
         $options = array_merge(['disabled'=>true],$options);        
         if (!array_key_exists('id', $options)) 
@@ -384,7 +390,38 @@ class ActiveField extends \yii\widgets\ActiveField
             $options['id'] = Html::getInputId($this->model, $this->attribute);
         }
 
+        if (!$loadList)
+        {   
+            $attribute = $this->attribute;    
+            if (!empty($items[$this->model->$attribute])) return parent::textInput(['value'=>$items[$this->model->$attribute]]);
+        } 
+
         return parent::dropDownList($items,$options);
+    }
+
+    /**
+     * Renders a textarea but wrapped in a visual view (as have trouble) updating
+     * the materializedcss textarea to match height because of when an element
+     * is hidden (eg. in a collapsible)
+     * @param array $options
+     * @return ActiveField
+     */
+    public function viewTextArea($options = [])
+    {
+        Html::addCssClass($options, ['textarea' => 'materialize-textarea']);
+        $attribute = $this->attribute;
+
+        $content = '<div class="input-field row">
+    <label class="active">'.$this->model->getAttributeLabel($attribute).'</label>
+    <div class="only-on-edit">'.
+        parent::textarea($options)->label(false) .'
+    </div>
+    <div class="not-on-edit visual-view">
+        <span id="'.Html::getInputId($this->model,$this->attribute).'-view">'. Yii::$app->formatter->asNtext($this->model->$attribute) .'</span>
+    </div>
+</div>';
+        
+        return $content;
     }
 
     /**
@@ -433,8 +470,14 @@ class ActiveField extends \yii\widgets\ActiveField
         $this->parts['{label}'] = '<label>'.$this->model->getAttributeLabel($attribute).'</label>';
         
         $value = $this->model->$attribute;
-        $format = 'as'.$format;
-        $this->parts['{input}'] = '<div class="output">'.Yii::$app->formatter->$format($value).'</div>';
+
+        if ($format == 'Currency'){
+             $this->parts['{input}'] = '<div class="output">'.Yii::$app->formatter->asCurrency($value,null,[\NumberFormatter::MIN_FRACTION_DIGITS => 2,\NumberFormatter::MAX_FRACTION_DIGITS => 2,]).'</div>';
+        }
+        else {
+            $format = 'as'.$format;
+            $this->parts['{input}'] = '<div class="output">'.Yii::$app->formatter->$format($value).'</div>';
+        }
 
         return $this;
     }
@@ -459,7 +502,7 @@ class ActiveField extends \yii\widgets\ActiveField
                 $value = Yii::$app->formatter->$format($this->model->$attribute);
         }        
         
-        return '<span id='.Html::getInputId($this->model,$this->attribute).'-view>'.$value.'</span> ';
+        return '<span id='.Html::getInputId($this->model,$this->attribute).'-view>'.$value.'</span>';
     }
 
     
