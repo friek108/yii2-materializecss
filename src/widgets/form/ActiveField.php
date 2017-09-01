@@ -425,6 +425,30 @@ class ActiveField extends \yii\widgets\ActiveField
     }
 
     /**
+     * Renders a textarea but wrapped in a visual view (as have trouble) updating
+     * the materializedcss textarea to match height because of when an element
+     * is hidden (eg. in a collapsible)
+     * @param array $options
+     * @return ActiveField
+     */
+    public function viewTextInput($options = [])
+    {        
+        $attribute = $this->attribute;
+
+        $content = '<div class="input-field row'.($this->model->isAttributeRequired($attribute) ? ' required' : '').'">
+    <label class="active">'.$this->model->getAttributeLabel($attribute).'</label>
+    <div class="only-on-edit">'.
+        parent::textinput($options)->label(false) .'
+    </div>
+    <div class="not-on-edit visual-view">
+        <span id="'.Html::getInputId($this->model,$this->attribute).'-view">'. $this->model->$attribute .'</span>
+    </div>
+</div>';
+        
+        return $content;
+    }
+
+    /**
      * Renders and inits an autocomplete
      * @param  array $data keys reflects the text and values reflects an image placeholder
      * @param  array  $options 
@@ -449,8 +473,7 @@ class ActiveField extends \yii\widgets\ActiveField
     {
         $defaultOptions = [
               'item' => function($index, $label, $name, $checked, $value) {
-                return Html::radio($name,$checked,['value'=>$value,'id'=>$name.$index]) . Html::label($label,$name.$index);
-                return $return;
+                return Html::radio($name,$checked,['value'=>$value,'id'=>$name.$index]) . Html::label($label,$name.$index);                
               },
               'class'=>'input-list-wrapper'
             ];
