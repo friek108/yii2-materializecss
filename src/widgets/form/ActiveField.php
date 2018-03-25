@@ -191,7 +191,7 @@ class ActiveField extends \yii\widgets\ActiveField
         Html::addCssClass($options, ['input' => 'color']);
         return parent::input('color', $options);
     }
-    
+
     /**
      * Renders a date input.
      * @param array $options
@@ -202,7 +202,7 @@ class ActiveField extends \yii\widgets\ActiveField
         Html::addCssClass($options, ['input' => 'date']);
         return parent::input('date', $options);
     }
-    
+
     /**
      * Renders a datetime input.
      * @param array $options
@@ -213,7 +213,7 @@ class ActiveField extends \yii\widgets\ActiveField
         Html::addCssClass($options, ['input' => 'datetime']);
         return parent::input('datetime', $options);
     }
-    
+
     /**
      * Renders a datetime local input.
      * @param array $options
@@ -224,7 +224,7 @@ class ActiveField extends \yii\widgets\ActiveField
         Html::addCssClass($options, ['input' => 'datetime-local']);
         return parent::input('datetime-local', $options);
     }
-    
+
     /**
      * Renders an email input.
      * @param array $options
@@ -259,7 +259,7 @@ class ActiveField extends \yii\widgets\ActiveField
         $options = array_merge($this->inputOptions, $options);
         Html::addCssClass($options, ['input' => 'number']);
         return parent::input('number', $options);
-    }   
+    }
 
     /**
      * Renders a range input.
@@ -346,19 +346,19 @@ class ActiveField extends \yii\widgets\ActiveField
      * @return ActiveField
      */
     public function checkbox($options = [],$enclosedByLabel = false)
-    {           
-        return parent::checkbox($options,false);        
+    {
+        return parent::checkbox($options,false);
     }
 
     /**
      * Renders and inits a dropdownList
-     * @param  array $items   
-     * @param  array  $options 
+     * @param  array $items
+     * @param  array  $options
      * @return html
      */
     public function dropDownList($items, $options = [],$init = true)
     {
-        if (!array_key_exists('id', $options)) 
+        if (!array_key_exists('id', $options))
         {
             $options['id'] = Html::getInputId($this->model, $this->attribute);
         }
@@ -377,24 +377,24 @@ class ActiveField extends \yii\widgets\ActiveField
     /**
      * Renders and inits a dropdownList that is disabled by default and not inited
      * This is generally used on the property / record page
-     * @param  array $items   
-     * @param  array  $options 
+     * @param  array $items
+     * @param  array  $options
      * @param boolean $loadList whether or not to load the list, or just load the value
      * @return html
      */
     public function viewDropDownList($items, $options = [],$loadList = true)
     {
-        $options = array_merge(['disabled'=>true],$options);        
-        if (!array_key_exists('id', $options)) 
+        $options = array_merge(['disabled'=>true],$options);
+        if (!array_key_exists('id', $options))
         {
             $options['id'] = Html::getInputId($this->model, $this->attribute);
         }
 
         if (!$loadList)
-        {   
-            $attribute = $this->attribute;    
+        {
+            $attribute = $this->attribute;
             if (!empty($items[$this->model->$attribute])) return parent::textInput(['value'=>$items[$this->model->$attribute]]);
-        } 
+        }
 
         return parent::dropDownList($items,$options);
     }
@@ -420,7 +420,7 @@ class ActiveField extends \yii\widgets\ActiveField
         <span id="'.Html::getInputId($this->model,$this->attribute).'-view">'. Yii::$app->formatter->asNtext($this->model->$attribute) .'</span>
     </div>
 </div>';
-        
+
         return $content;
     }
 
@@ -432,7 +432,7 @@ class ActiveField extends \yii\widgets\ActiveField
      * @return ActiveField
      */
     public function viewTextInput($options = [])
-    {        
+    {
         $attribute = $this->attribute;
 
         $content = '<div class="input-field row'.($this->model->isAttributeRequired($attribute) ? ' required' : '').'">
@@ -444,19 +444,19 @@ class ActiveField extends \yii\widgets\ActiveField
         <span id="'.Html::getInputId($this->model,$this->attribute).'-view">'. $this->model->$attribute .'</span>
     </div>
 </div>';
-        
+
         return $content;
     }
 
     /**
      * Renders and inits an autocomplete
      * @param  array $data keys reflects the text and values reflects an image placeholder
-     * @param  array  $options 
+     * @param  array  $options
      * @return html
      */
     public function autoComplete($data,$options = [])
     {
-        if (!array_key_exists('id', $options)) 
+        if (!array_key_exists('id', $options))
         {
             $options['id'] = Html::getInputId($this->model, $this->attribute);
         }
@@ -467,13 +467,13 @@ class ActiveField extends \yii\widgets\ActiveField
     }
 
     /**
-     * Builds a radio list 
+     * Builds a radio list
      */
     public function radioList($items, $options = [])
     {
         $defaultOptions = [
               'item' => function($index, $label, $name, $checked, $value) {
-                return Html::radio($name,$checked,['value'=>$value,'id'=>$name.$index]) . Html::label($label,$name.$index);                
+                return Html::radio($name,$checked,['value'=>$value,'id'=>$name.$index]) . Html::label($label,$name.$index);
               },
               'class'=>'input-list-wrapper'
             ];
@@ -486,12 +486,12 @@ class ActiveField extends \yii\widgets\ActiveField
     {
         $this->template = "{icon}\n{input}\n{label}\n{hint}";
 
-        $options = array_merge($this->inputOptions, $options);       
+        $options = array_merge($this->inputOptions, $options);
 
         $attribute = $this->attribute;
 
         $this->parts['{label}'] = '<label>'.$this->model->getAttributeLabel($attribute).'</label>';
-        
+
         $value = $this->model->$attribute;
 
         if ($format == 'Currency'){
@@ -509,7 +509,8 @@ class ActiveField extends \yii\widgets\ActiveField
     {
         $attribute = preg_replace('/[[\s\S]+?]/', '', $this->attribute); // remove [ ] for tabular inputs
         $value = $this->model->$attribute;
-        
+        if (empty($options['placeholder'])) $options['placeholder'] = 'dd/mm/yyyy';
+
         if (!empty($value)) $this->model->$attribute = Yii::$app->formatter->asDate($value);
         Html::addCssClass($options, ['class' => 'datepicker']);
         return parent::input('text', $options);
@@ -517,16 +518,16 @@ class ActiveField extends \yii\widgets\ActiveField
 
     public function visualViewSpan($format = 'Text',$options = [])
     {
-        $attribute = $this->attribute;        
-        
+        $attribute = $this->attribute;
+
         if (empty($this->model->$attribute)) $value = '';
         else {
                 $format = 'as'.$format;
                 $value = Yii::$app->formatter->$format($this->model->$attribute);
-        }        
-        
+        }
+
         return '<span id='.Html::getInputId($this->model,$this->attribute).'-view>'.$value.'</span>';
     }
 
-    
+
 }
