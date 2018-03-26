@@ -513,7 +513,10 @@ class ActiveField extends \yii\widgets\ActiveField
 
         if (!empty($value)) $this->model->$attribute = Yii::$app->formatter->asDate($value);
         Html::addCssClass($options, ['class' => 'datepicker']);
-        return parent::input('text', $options);
+        $return = parent::input('text', $options);
+        // Convert back to proper format
+        if (!empty($value)) $this->model->$attribute = Yii::$app->formatter->asDate($value,'php:Y-m-d');
+        return $return;
     }
 
     public function visualViewSpan($format = 'Text',$options = [])
